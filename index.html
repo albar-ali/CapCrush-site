@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CapCrush v1.0 — AI Captioning &amp; Visual B-Roll Panel for Adobe Premiere Pro</title>
+  <style>
+    :root {
+      --bg: #f6f3ec;
+      --surface: #fffdf9;
+      --surface-alt: #efe9dc;
+      --ink: #1b1916;
+      --muted: #5a544b;
+      --accent: #7a3b18;
+      --accent-dark: #5c2b10;
+      --accent-soft: #f5e6dc;
+      --border: #dfd7c8;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1060px;
+      margin: 0 auto;
+      padding: 0 22px;
+    }
+
+    /* Navigation */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(246, 243, 236, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+      gap: 16px;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand span {
+      color: var(--accent);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 500;
+    }
+
+    .nav-links a:hover {
+      color: var(--accent);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 56px 0 36px;
+    }
+
+    .hero-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 44px 36px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .pill.neutral {
+      background: var(--surface-alt);
+      color: var(--ink);
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 2.85rem);
+      line-height: 1.15;
+      letter-spacing: -0.025em;
+      margin-bottom: 16px;
+    }
+
+    .hero-sub {
+      font-size: 1.12rem;
+      color: var(--muted);
+      max-width: 820px;
+      margin-bottom: 28px;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 22px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.96rem;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .btn-secondary {
+      background: var(--surface-alt);
+      color: var(--ink);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+    }
+
+    /* Sections */
+    section {
+      padding: 36px 0;
+    }
+
+    .section-head {
+      margin-bottom: 24px;
+    }
+
+    .section-head h2 {
+      font-size: 1.75rem;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .section-head p {
+      color: var(--muted);
+      max-width: 760px;
+    }
+
+    /* Grids & Cards */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+
+    .card p, .card li {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .card ul {
+      padding-left: 18px;
+      margin-top: 8px;
+    }
+
+    .card li {
+      margin-bottom: 6px;
+    }
+
+    /* Story / Problem Banner */
+    .story-card {
+      background: var(--surface);
+      border-left: 4px solid var(--accent);
+      border-top: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 30px;
+    }
+
+    /* B-Roll Spotlight Banner */
+    .spotlight {
+      background: linear-gradient(135deg, #fffdf9 0%, #f4eadc 100%);
+      border: 2px solid var(--accent);
+      border-radius: 18px;
+      padding: 32px;
+    }
+
+    .spotlight-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .spotlight h2 {
+      font-size: 1.65rem;
+      color: var(--ink);
+    }
+
+    .broll-specs {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .spec-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .spec-box strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 4px;
+      font-size: 0.98rem;
+    }
+
+    .spec-box span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Languages Box */
+    .lang-highlight {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 18px;
+    }
+
+    .lang-chip {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 600;
+      font-size: 0.88rem;
+      padding: 5px 12px;
+      border-radius: 8px;
+    }
+
+    .lang-list {
+      font-size: 0.88rem;
+      color: var(--muted);
+      background: var(--surface-alt);
+      padding: 16px;
+      border-radius: 10px;
+      line-height: 1.75;
+    }
+
+    /* Comparison Table */
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.94rem;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      background: var(--surface-alt);
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .yes {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 32px;
+      padding: 32px 0 48px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .footer-grid {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .footer-grid a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container nav-inner">
+      <a href="#" class="brand">Cap<span>Crush</span></a>
+      <div class="nav-links">
+        <a href="#why">Why CapCrush</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#broll">AI B-Roll</a>
+        <a href="#features">Capabilities</a>
+        <a href="#languages">99 Languages</a>
+        <a href="#compare">Comparison</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-card">
+        <div class="pill-row">
+          <span class="pill">Adobe Premiere Pro Native Panel</span>
+          <span class="pill neutral">Version 1.0 · Release Distribution</span>
+        </div>
+        <h1>Turn Spoken Words into Styled Captions &amp; On-Screen B-Roll Inside Premiere Pro</h1>
+        <p class="hero-sub">
+          Stop spending hours typing captions by hand or hunting across stock sites for visuals.
+          CapCrush runs natively inside Adobe Premiere Pro—transcribing speech across 99 languages,
+          generating context-matched B-roll visuals, and placing everything straight onto your native Premiere timeline.
+        </p>
+        <div class="cta-row">
+          <a href="#release" class="btn btn-primary">Download / Release Info</a>
+          <a href="#broll" class="btn btn-secondary">Explore AI B-Roll &amp; Templates</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Why CapCrush Exists -->
+    <section id="why">
+      <div class="section-head">
+        <h2>Why We Built CapCrush</h2>
+        <p>Two of the biggest bottlenecks in modern video editing solved in a single native workflow.</p>
+      </div>
+      <div class="grid-2">
+        <div class="story-card">
+          <h3>1. Eliminating Hours of Manual Caption Work</h3>
+          <p style="margin-top: 8px; color: var(--muted);">
+            Video editors spend hours manually transcribing, syncing, and styling subtitles for every video.
+            CapCrush automates the entire process inside Premiere Pro—giving you complete flexibility with
+            <strong>AI transcription, .srt import, or manual caption entry</strong>, all editable in one place.
+          </p>
+        </div>
+        <div class="story-card">
+          <h3>2. Visual Storytelling with Automatic B-Roll</h3>
+          <p style="margin-top: 8px; color: var(--muted);">
+            YouTubers, creators, and podcasters love showing visual representations on screen of what they are
+            talking about. CapCrush lets you <strong>enable B-roll directly during caption generation</strong>,
+            automatically surfacing relevant images and video clips to keep viewers hooked.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3-Step Workflow -->
+    <section id="workflow">
+      <div class="section-head">
+        <h2>3-Step Workflow — Straight Into Your Premiere Timeline</h2>
+        <p>No external browser tabs, no messy XML roundtrips, and zero hassle for editors.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="step-num">1</div>
+          <h3>Choose or Create a Template</h3>
+          <p>
+            Pick from a rich library of <strong>built-in preset templates</strong> with <strong>dual-color styling</strong>,
+            or <strong>create and add your own custom templates</strong> anytime—backed by 100+ bundled fonts.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step-num">2</div>
+          <h3>Generate Captions &amp; Enable B-Roll</h3>
+          <p>
+            Transcribe active sequence audio with AI, import an existing <code>.srt</code> file, or write captions
+            manually—and toggle <strong>AI B-Roll</strong> on to generate matching visual assets in the same run.
+          </p>
+        </div>
+        <div class="card">
+          <div class="step-num">3</div>
+          <h3>Live Audio/Video Review &amp; Timeline Drop</h3>
+          <p>
+            Verify every word with <strong>live audio review</strong> and <strong>live visual preview</strong>,
+            switch between Line by Line or Word by Word modes, and drop the output straight into Premiere Pro's own timeline.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dedicated B-Roll Limelight Section -->
+    <section id="broll">
+      <div class="spotlight">
+        <div class="spotlight-header">
+          <div>
+            <span class="pill">Built for YouTubers, Creators &amp; Podcasters</span>
+            <h2>On-Demand AI B-Roll Visual Representation</h2>
+          </div>
+          <span class="pill neutral">Toggleable Anytime</span>
+        </div>
+        <p>
+          Spoken content performs dramatically better when viewers see what is being discussed on screen.
+          Simply enable B-roll in CapCrush to automatically match your spoken dialogue with relevant visual
+          assets—tailored to your exact video format without ever leaving Premiere Pro.
+        </p>
+        <div class="broll-specs">
+          <div class="spec-box">
+            <strong>Simple Enable Toggle</strong>
+            <span>Turn B-roll on whenever you want visual storytelling alongside your captions.</span>
+          </div>
+          <div class="spec-box">
+            <strong>Images &amp; Video Clips</strong>
+            <span>Generate either still image visuals or dynamic video B-roll clips suited to your narrative.</span>
+          </div>
+          <div class="spec-box">
+            <strong>Style, Orientation &amp; Count</strong>
+            <span>Control visual style, landscape (16:9) or vertical (9:16) framing, and exact asset quantity.</span>
+          </div>
+          <div class="spec-box">
+            <strong>Direct Timeline Workflow</strong>
+            <span>Review everything inside the panel and send assets directly into your Premiere Pro sequence.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep-Dive Capabilities -->
+    <section id="features">
+      <div class="section-head">
+        <h2>Flexible, Fast &amp; Built for Real Editors</h2>
+        <p>Optimized performance and lower cost compared to bloated, unoptimized competitors.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Preset Library, Custom Templates &amp; Dual-Color Styling</h3>
+          <ul>
+            <li><strong>Rich Preset Collection:</strong> Start immediately with dozens of professionally crafted caption presets.</li>
+            <li><strong>Add Your Own Templates:</strong> Full flexibility for editors and brands to create and save custom templates.</li>
+            <li><strong>Dual-Color Support:</strong> Highlight active words and contrast primary/secondary colors effortlessly.</li>
+            <li><strong>100+ Bundled Font Variants:</strong> Zero manual font installation—captions look identical on every machine.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>AI, SRT &amp; Manual — Total Input Flexibility</h3>
+          <ul>
+            <li><strong>AI Speech-to-Text:</strong> One-click transcription directly from your active Premiere Pro sequence audio.</li>
+            <li><strong>SRT File Import:</strong> Bring in existing <code>.srt</code> subtitle files and apply CapCrush templates instantly.</li>
+            <li><strong>Manual Entry &amp; Editing:</strong> Add custom lines, split segments, adjust start/end times, or flag key lines.</li>
+            <li><strong>Line by Line or Word by Word:</strong> Switch styles to match podcasts, YouTube videos, Reels, or Shorts.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Live Audio Review &amp; Real-Time Visual Preview</h3>
+          <ul>
+            <li><strong>Live Audio Review:</strong> Listen to your sequence audio directly inside the panel while checking accuracy.</li>
+            <li><strong>Live Visual Preview:</strong> Preview caption styling, dual-color highlights, and timing before exporting.</li>
+            <li><strong>Interactive Timeline &amp; Playhead:</strong> Scrub smoothly with real-time active-caption highlighting.</li>
+            <li><strong>Smooth Codec Handling:</strong> Server-side preview preparation handles H.264 and HEVC media seamlessly.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h3>Direct Premiere Timeline Integration &amp; Optimized Speed</h3>
+          <ul>
+            <li><strong>Throws Data Straight to Premiere's Timeline:</strong> No manual file importing or re-aligning—captions land right on your sequence tracks.</li>
+            <li><strong>Optimized &amp; Cost-Efficient:</strong> Lightweight streaming architecture runs fast without the heavy resource bloat or high pricing of unoptimized competitors.</li>
+            <li><strong>Built-In Licensing &amp; Credits:</strong> Instant key activation, device binding, and live credit balance tracking.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Languages -->
+    <section id="languages">
+      <div class="card">
+        <h2>99 Languages + South Asian &amp; Code-Mixed Speech</h2>
+        <p style="margin-top: 6px;">
+          Accurate transcription across 99 global languages with dedicated support for South Asian and
+          code-mixed speech where mainstream tools fall short.
+        </p>
+        <div class="lang-highlight">
+          <span class="lang-chip">Auto Detect</span>
+          <span class="lang-chip">Urdu</span>
+          <span class="lang-chip">Roman Urdu</span>
+          <span class="lang-chip">Hindi</span>
+          <span class="lang-chip">Hinglish</span>
+          <span class="lang-chip">Punjabi</span>
+          <span class="lang-chip">English</span>
+        </div>
+        <div class="lang-list">
+          <strong>Full Supported Language Coverage (99 Languages):</strong>
+          Afrikaans, Albanian, Amharic, Arabic, Armenian, Assamese, Azerbaijani, Bashkir, Basque,
+          Belarusian, Bengali, Bosnian, Breton, Bulgarian, Burmese, Cantonese, Catalan, Cebuano,
+          Chinese, Croatian, Czech, Danish, Dutch, English, Estonian, Faroese, Finnish, French,
+          Galician, Georgian, German, Greek, Gujarati, Haitian Creole, Hausa, Hawaiian, Hebrew,
+          Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Javanese, Kannada, Kazakh,
+          Khmer, Korean, Lao, Latin, Latvian, Lingala, Lithuanian, Luxembourgish, Macedonian,
+          Malagasy, Malay, Malayalam, Maltese, Mandarin, Marathi, Mongolian, Nepali, Norwegian,
+          Nynorsk, Occitan, Pashto, Persian, Polish, Portuguese, Punjabi, Romanian, Russian,
+          Sanskrit, Serbian, Shona, Sindhi, Sinhala, Slovak, Slovenian, Somali, Spanish, Sundanese,
+          Swahili, Swedish, Tagalog, Tajik, Tamil, Tatar, Telugu, Thai, Tibetan, Turkish, Turkmen,
+          Ukrainian, Urdu, Uzbek, Vietnamese, Welsh, Yiddish, Yoruba.
+        </div>
+      </div>
+    </section>
+
+    <!-- Comparison -->
+    <section id="compare">
+      <div class="section-head">
+        <h2>Why CapCrush Outperforms Unoptimized Alternatives</h2>
+        <p>Faster, leaner, more flexible, and built specifically for Premiere Pro workflows.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Feature / Advantage</th>
+              <th>Other Competitors</th>
+              <th>CapCrush</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Performance &amp; Cost Efficiency</td>
+              <td>Unoptimized, heavy &amp; expensive</td>
+              <td class="yes">Lightweight, fast &amp; cost-efficient</td>
+            </tr>
+            <tr>
+              <td>Premiere Pro Timeline Output</td>
+              <td>Requires manual export/import workarounds</td>
+              <td class="yes">Throws data directly onto Premiere's own timeline</td>
+            </tr>
+            <tr>
+              <td>Template Flexibility &amp; Dual Color</td>
+              <td>Rigid presets, limited color options</td>
+              <td class="yes">Preset library + custom user templates + dual-color styling</td>
+            </tr>
+            <tr>
+              <td>Caption Input Options</td>
+              <td>AI-only or rigid pipelines</td>
+              <td class="yes">AI transcription, .srt import &amp; manual editing</td>
+            </tr>
+            <tr>
+              <td>Live Audio &amp; Visual Preview</td>
+              <td>External browser preview</td>
+              <td class="yes">Built-in live audio review &amp; visual preview</td>
+            </tr>
+            <tr>
+              <td>AI B-Roll Visual Representation</td>
+              <td>Not included</td>
+              <td class="yes">Toggleable B-roll (images/video, style, orientation &amp; count)</td>
+            </tr>
+            <tr>
+              <td>South Asian &amp; Code-Mixed Speech</td>
+              <td>Po
+
+or accuracy on Roman Urdu / Hinglish</td>
+              <td class="yes">99 languages including Urdu, Roman Urdu, Hindi, Hinglish &amp; Punjabi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Distribution & Release Info -->
+    <section id="release">
+      <div class="card">
+        <h2>Distribution, Architecture &amp; Release Status</h2>
+        <ul>
+          <li><strong>Host Application:</strong> Adobe Premiere Pro native panel with ExtendScript timeline bridge.</li>
+          <li><strong>Architecture:</strong> Optimized Premiere Pro panel connected to a FastAPI backend for transcription, preview preparation, B-roll generation, and licensing.</li>
+          <li><strong>Current Release Status (v1.0):</strong> Distribution page and initial release build published; production backend hosting and configuration hardening are actively rolling out.</li>
+          <li><strong>Ideal For:</strong> YouTubers, podcasters, short-form editors (Reels/Shorts/TikTok), post-production agencies, educators, and freelancers.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <strong>CapCrush v1.0</strong> — AI Captioning &amp; Visual B-Roll Panel for Adobe Premiere Pro
+      </div>
+      <div>
+        Contact: M Allbar Ali / Elgo Labs ·
+        <a href="mailto:mallbarali5@gmail.com">mallbarali5@gmail.com</a> ·
+        <a href="https://elgo-labs.online" target="_blank" rel="noopener">elgo-labs.online</a> ·
+        <a href="https://github.com/albar-ali" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
